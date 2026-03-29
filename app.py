@@ -1,14 +1,30 @@
 import streamlit as st
 import pandas as pd
 from statsmodels.tsa.arima.model import ARIMA
-import time
 
 # ------------------ CONFIG ------------------
 st.set_page_config(page_title="Network Dashboard", layout="wide")
 
-# ------------------ SIDEBAR ------------------
-st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Home", "Dashboard", "Documentation"])
+# ------------------ NAVBAR ------------------
+st.markdown("""
+    <style>
+    .nav {
+        display: flex;
+        gap: 20px;
+        background-color: #111827;
+        padding: 15px;
+        border-radius: 10px;
+        margin-bottom: 20px;
+    }
+    .nav a {
+        color: #E5E7EB;
+        text-decoration: none;
+        font-weight: bold;
+    }
+    </style>
+""", unsafe_allow_html=True)
+
+menu = st.radio("", ["Home", "Dashboard", "Documentation"], horizontal=True)
 
 # ------------------ LOAD DATA ------------------
 @st.cache_data
@@ -19,87 +35,72 @@ def load_data():
     df = df.set_index('time').sort_index()
     return df
 
-# ------------------ HOME ------------------
-if page == "Home":
+# ------------------ HOME PAGE ------------------
+if menu == "Home":
     st.title("Network Traffic Analysis System")
 
-    with st.container():
-        st.markdown("### Welcome")
-        st.write("This system analyzes network traffic and predicts future usage.")
+    st.markdown("""
+    ### Overview
+    This project analyzes network traffic using time series techniques.
 
-    # Animated loading effect
-    progress = st.progress(0)
-    for i in range(100):
-        time.sleep(0.01)
-        progress.progress(i + 1)
+    ### What it does:
+    - Understand traffic patterns over time
+    - Identify trends and behavior
+    - Predict future network usage using ARIMA model
 
-    st.success("System Ready")
+    ### Why it matters:
+    Helps in network planning, monitoring, and optimization.
+    """)
 
 # ------------------ DASHBOARD ------------------
-elif page == "Dashboard":
-    st.title("Interactive Network Dashboard")
+elif menu == "Dashboard":
+    st.title("Network Traffic Dashboard")
 
     df = load_data()
     df_hourly = df['total_bytes'].resample('H').sum().ffill()
 
-    # Filters
-    st.sidebar.subheader("Filters")
-    start_date = st.sidebar.date_input("Start Date", df_hourly.index.min().date())
-    end_date = st.sidebar.date_input("End Date", df_hourly.index.max().date())
-
-    df_filtered = df_hourly[(df_hourly.index.date >= start_date) & (df_hourly.index.date <= end_date)]
-
-    if df_filtered.empty:
-        st.warning("No data available for selected date range")
-        st.stop()
-
-    # Metrics with animation feel
+    # Metrics
+    st.subheader("Key Metrics")
     col1, col2, col3 = st.columns(3)
-    # Handle empty/NaN safely
-    avg = df_filtered.mean()
-    peak = df_filtered.max()
-    min_val = df_filtered.min()
+    col1.metric("Average", f"{int(df_hourly.mean()):,}")
+    col2.metric("Peak", f"{int(df_hourly.max()):,}")
+    col3.metric("Min", f"{int(df_hourly.min()):,}")
 
-    col1.metric("Average", f"{int(avg):,}" if pd.notna(avg) else "N/A")
-    col2.metric("Peak", f"{int(peak):,}" if pd.notna(peak) else "N/A")
-    col3.metric("Min", f"{int(min_val):,}" if pd.notna(min_val) else "N/A")
+    # Charts
+    colA, colB = st.columns(2)
 
-    st.divider()
-
-    # Tabs for smooth navigation
-    tab1, tab2, tab3 = st.tabs(["Traffic", "Trend", "Forecast"])
-
-    with tab1:
+    with colA:
         st.subheader("Traffic Over Time")
-        st.line_chart(df_filtered)
+        st.line_chart(df_hourly)
 
-    with tab2:
-        st.subheader("Trend Analysis")
-        rolling = df_filtered.rolling(window=5).mean()
+    with colB:
+        st.subheader("Trend")
+        rolling = df_hourly.rolling(window=5).mean()
         st.line_chart(rolling)
 
-    with tab3:
-        st.subheader("Forecast")
-        model = ARIMA(df_filtered, order=(1,1,1))
-        model_fit = model.fit()
-        forecast = model_fit.forecast(steps=24)
-        forecast.index = pd.date_range(start=df_filtered.index[-1], periods=24, freq='H')
+    # Forecast
+    st.subheader("24-Hour Forecast")
+    model = ARIMA(df_hourly, order=(1,1,1))
+    model_fit = model.fit()
+    forecast = model_fit.forecast(steps=24)
+    forecast.index = pd.date_range(start=df_hourly.index[-1], periods=24, freq='H')
 
-        combined = pd.concat([df_filtered, forecast])
-        st.line_chart(combined)
+    st.line_chart(forecast)
 
 # ------------------ DOCUMENTATION ------------------
-elif page == "Documentation":
-    st.title("Project Documentation")
+elif menu == "Documentation":
+    st.title("Documentation")
 
-    with st.expander("Overview"):
-        st.write("Time series analysis is used to analyze and forecast network traffic.")
+    st.markdown("""
+    ### Project Description
+    This project applies time series analysis to network traffic data.
 
-    with st.expander("Dataset"):
-        st.write("Contains timestamps, bytes sent and received.")
+    ### Methodology
+    - Data preprocessing
+    - Time resampling
+    - Trend analysis
+    - ARIMA forecasting
 
-    with st.expander("Methodology"):
-        st.write("Includes preprocessing, resampling, trend analysis, and ARIMA forecasting.")
-
-    with st.expander("Conclusion"):
-        st.write("Network traffic can be predicted using historical data patterns.")
+    ### Outcome
+    The system predicts future network traffic based on historical patterns.
+    """)
