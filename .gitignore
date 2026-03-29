@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+
+# Virtual Environment
+venv/
+.env/
+
+# Jupyter Notebook
+.ipynb_checkpoints/
+
+# VS Code
+.vscode/
+
+# Streamlit
+.streamlit/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Data files (optional - remove if you want to track CSV)
+# *.csv
