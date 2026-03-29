@@ -89,18 +89,75 @@ elif menu == "Dashboard":
 
 # ------------------ DOCUMENTATION ------------------
 elif menu == "Documentation":
-    st.title("Documentation")
+    st.title("Project Documentation")
 
     st.markdown("""
-    ### Project Description
-    This project applies time series analysis to network traffic data.
+    ## Overview
+    This project focuses on analyzing network traffic using time series analysis and forecasting techniques. The goal is to understand how network usage changes over time and to predict future traffic patterns.
 
-    ### Methodology
-    - Data preprocessing
-    - Time resampling
-    - Trend analysis
-    - ARIMA forecasting
+    ## Problem Statement
+    Network systems generate large amounts of data continuously. Understanding this data is important for:
+    - Capacity planning
+    - Performance monitoring
+    - Detecting unusual behavior
 
-    ### Outcome
-    The system predicts future network traffic based on historical patterns.
+    This project uses historical traffic data to extract patterns and make predictions.
+
+    ## Dataset Description
+    The dataset contains the following columns:
+    - **time**: Timestamp of network activity
+    - **bytes_sent**: Amount of data sent
+    - **bytes_received**: Amount of data received
+
+    A new feature called **total_bytes** is created by combining sent and received data to represent total network usage.
+
+    ## Data Preprocessing
+    - Converted time column to datetime format
+    - Sorted data by time
+    - Set time as index for time series analysis
+    - Resampled data into hourly intervals
+    - Handled missing values using forward fill
+
+    ## Time Series Analysis
+    Time series analysis involves studying data points collected over time. In this project:
+    - Traffic patterns are visualized over time
+    - Trends are identified using rolling averages
+    - Noise is reduced to reveal underlying behavior
+
+    ## Trend Analysis
+    A rolling mean (moving average) is applied to smooth short-term fluctuations. This helps in identifying long-term trends in network usage.
+
+    ## Forecasting with ARIMA
+    The ARIMA (AutoRegressive Integrated Moving Average) model is used for forecasting.
+
+    - **AR (AutoRegressive):** Uses past values
+    - **I (Integrated):** Removes trends to stabilize data
+    - **MA (Moving Average):** Uses past errors to improve predictions
+
+    The model is trained on historical data and used to predict the next 24 hours of network traffic.
+
+    ## Dashboard Features
+    - Interactive charts for traffic visualization
+    - Trend analysis using rolling averages
+    - Forecast visualization
+    - Key metrics (average, peak, minimum)
+
+    ## Key Insights
+    - Network traffic shows an initial peak followed by stabilization
+    - Trends indicate consistent usage patterns after fluctuations
+    - Forecast suggests stable future traffic with minimal variation
+
+    ## Limitations
+    - Small dataset may reduce model accuracy
+    - ARIMA model parameters are not optimized
+    - Does not capture sudden unexpected spikes
+
+    ## Future Improvements
+    - Use larger datasets for better accuracy
+    - Tune ARIMA parameters
+    - Implement anomaly detection
+    - Use advanced models like Prophet or LSTM
+
+    ## Conclusion
+    This project demonstrates how time series analysis can be applied to real-world data to understand patterns and predict future behavior. It provides a foundation for building intelligent monitoring systems.
     """)
